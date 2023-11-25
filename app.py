@@ -10,8 +10,13 @@ from flask import Flask, render_template_string
 from flask_socketio import SocketIO
 from datetime import datetime
 
+from threading import Lock
+
 app = Flask(__name__)
-socketio = SocketIO(app)
+app.config['SECRET_KEY'] = 'mysecret'
+socketio = SocketIO(app, async_mode='threading')
+thread_lock = Lock()
+
 resultados = []
 ultimo_id_resultado = 0  # Rastreia o último ID de resultado
 
@@ -112,7 +117,9 @@ def coletar_dados():
                         'conteudo': f"{current_time}: {roulette_number}"
                     }
 
-                    resultados.append(resultado)
+                    # Usar o bloqueio de thread ao adicionar resultados à lista
+                    with thread_lock:
+                        resultados.append(resultado)
 
                     socketio.emit('novo_resultado', resultado, namespace='/resultado')
 
@@ -130,6 +137,7 @@ def coletar_dados():
 
         except Exception as e:
             print("Ocorreu um erro durante a execução:", str(e))
+
 
 if __name__ == "__main__":
     thread_coleta = threading.Thread(target=coletar_dados)
