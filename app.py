@@ -10,10 +10,10 @@ from flask import Flask, render_template_string
 from flask_socketio import SocketIO
 from datetime import datetime
 import eventlet
-
+from threading import Lock
 eventlet.monkey_patch()
 
-from threading import Lock
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
