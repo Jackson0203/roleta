@@ -9,6 +9,9 @@ import threading
 from flask import Flask, render_template_string
 from flask_socketio import SocketIO
 from datetime import datetime
+import eventlet
+
+eventlet.monkey_patch()
 
 from threading import Lock
 
