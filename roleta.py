@@ -78,6 +78,7 @@ def coletar_dados():
             print("Ocorreu um erro durante a execução:", str(e))
 
 if __name__ == "__main__":
+    app.run(debug=True)
     # Crie uma thread para coletar dados
     thread_coleta = threading.Thread(target=coletar_dados)
     thread_coleta.start()
