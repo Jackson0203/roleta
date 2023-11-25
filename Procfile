@@ -1,1 +1,1 @@
-web: gunicorn roleta:app
+web: gunicorn app:app
