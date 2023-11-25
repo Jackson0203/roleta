@@ -64,6 +64,9 @@ def coletar_dados():
                     # Envie a mensagem via WebSocket quando um novo resultado estiver disponível
                     socketio.emit('novo_resultado', resultado, namespace='/resultado')
 
+                    # Adicione um log
+                    print(f"Novo resultado coletado: {resultado}")
+
                     time.sleep(50)  # Aguarda 50 segundos antes de buscar o próximo resultado
 
                 except NoSuchElementException:
