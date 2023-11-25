@@ -14,7 +14,7 @@ from threading import Lock
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
-socketio = SocketIO(app, async_mode='threading')
+socketio = SocketIO(app, async_mode='eventlet')
 thread_lock = Lock()
 
 resultados = []
