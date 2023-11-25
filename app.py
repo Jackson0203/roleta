@@ -1,34 +1,93 @@
+from flask import Flask, render_template_string
+from flask_socketio import SocketIO
+from datetime import datetime
+import threading
+import time
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
-import time
-import threading
-from flask import Flask, render_template
-from flask_socketio import SocketIO
-from datetime import datetime
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__)
+
+# Configuração do SocketIO
 socketio = SocketIO(app)
+
+# Lista de resultados
 resultados = []
-ultimo_id_resultado = 0  # Rastreia o último ID de resultado
 
 # Flag para controlar o encerramento do programa
 encerrar_programa = False
 
+# Template HTML incorporado
+template_html = """
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados da Roleta</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        .column {
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/resultado');
+
+        socket.on('connect', function() {
+            console.log('Conectado ao servidor WebSocket');
+        });
+
+        socket.on('novo_resultado', function(resultado) {
+            // Adicione o novo resultado à lista de resultados
+            var resultadosLista = document.getElementById('resultados-lista');
+            var novoResultado = document.createElement('li');
+            novoResultado.innerText = resultado['conteudo'];
+            resultadosLista.appendChild(novoResultado);
+        });
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Resultados da Roleta</h1>
+        <div id="resultados-lista" class="row">
+            {% for data, resultados_do_dia in resultados_por_data.items() %}
+                <div class="col-md-4">
+                    <div class="card column">
+                        <div class="card-header">
+                            <h2>{{ data }}</h2>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            {% for resultado in resultados_do_dia %}
+                                <li class="list-group-item">{{ resultado }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
+"""
+
 @app.route('/')
 def index():
-    # Organize os resultados por data
-    resultados_por_data = {}
-    for resultado in resultados:
-        data = resultado['data']
-        if data not in resultados_por_data:
-            resultados_por_data[data] = []
-        resultados_por_data[data].append(resultado['conteudo'])
+    return render_template_string(template_html, resultados=resultados)
 
-    return render_template('index.html', resultados_por_data=resultados_por_data)
+@socketio.on('connect', namespace='/resultado')
+def handle_connect():
+    # Quando um cliente se conecta, envie os resultados existentes
+    for resultado in resultados:
+        socketio.emit('novo_resultado', resultado)
 
 def coletar_dados():
     while not encerrar_programa:
