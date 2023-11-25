@@ -2,10 +2,8 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import time
-import threading
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from datetime import datetime
@@ -31,19 +29,13 @@ def index():
     return render_template('index.html', resultados_por_data=resultados_por_data)
 
 def coletar_dados():
-    while not encerrar_programa:
-        # Obtém a data atual
-        today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now().strftime("%Y-%m-%d")
+    url = "https://casino.betfair.com/pt-br/c/roleta"
 
-        url = "https://casino.betfair.com/pt-br/c/roleta"
-
-        try:
-            servico = Service(ChromeDriverManager().install())
-            chrome_options = Options()
-            chrome_options.add_argument("--headless")
-            driver = webdriver.Chrome(service=servico, options=chrome_options)
+    try:
+        with webdriver.Chrome(ChromeDriverManager().install(), options=Options()) as driver:
             # Definir um tempo limite para esperar até que o elemento seja encontrado
-            driver.implicitly_wait(10)  # Aguarda até 10 segundos por elementos
+            driver.implicitly_wait(10)
 
             # Fazer a requisição GET para a página
             driver.get(url)
@@ -73,22 +65,14 @@ def coletar_dados():
                     print("Elemento da roleta não encontrado")
                     break
 
-            # Fechar o driver do Selenium
-            driver.quit()
-
-        except Exception as e:
-            print("Ocorreu um erro durante a execução:", str(e))
+    except Exception as e:
+        print("Ocorreu um erro durante a execução:", str(e))
 
 if __name__ == "__main__":
-    # Crie uma thread para coletar dados
-    thread_coleta = threading.Thread(target=coletar_dados)
-    thread_coleta.start()
-
     try:
         # Inicie o servidor SocketIO para permitir a comunicação em tempo real
-        socketio.run(app, host='0.0.0.0', port=10000)
+        socketio.run(app, host='0.0.0.0', port=10000, debug=True)
     except KeyboardInterrupt:
         print("Encerrando o programa...")
         encerrar_programa = True
-        thread_coleta.join()
         socketio.stop()
