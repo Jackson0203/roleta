@@ -78,10 +78,10 @@ def coletar_dados():
             print("Ocorreu um erro durante a execução:", str(e))
 
 if __name__ == "__main__":
-    app.run(debug=True)
     # Crie uma thread para coletar dados
     thread_coleta = threading.Thread(target=coletar_dados)
     thread_coleta.start()
 
     # Inicie o servidor SocketIO para permitir a comunicação em tempo real
     socketio.run(app, host='0.0.0.0', port=5000)
+    app.run(debug=True)
