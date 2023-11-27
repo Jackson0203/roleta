@@ -1,3 +1,5 @@
+from flask import Flask, render_template
+from flask_socketio import SocketIO
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
@@ -6,30 +8,20 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 import time
 import threading
-from flask import Flask, render_template
-from datetime import datetime  # Adicione esta linha
+from datetime import datetime
 
 app = Flask(__name__, template_folder='templates')
+socketio = SocketIO(app)  # Inicialize o SocketIO
 resultados = []
-ultimo_id_resultado = 0  # Rastreia o último ID de resultado
+ultimo_id_resultado = 0
 
 @app.route('/')
 def index():
-    # Organize os resultados por data
-    resultados_por_data = {}
-    for resultado in resultados:
-        data = resultado['data']
-        if data not in resultados_por_data:
-            resultados_por_data[data] = []
-        resultados_por_data[data].append(resultado['conteudo'])
-
-    return render_template('index.html', resultados_por_data=resultados_por_data)
+    return render_template('index.html', resultados=resultados)
 
 def coletar_dados():
     while True:
-        # Obtém a data atual
         today = datetime.now().strftime("%Y-%m-%d")
-
         url = "https://casino.betfair.com/pt-br/c/roleta"
 
         try:
@@ -37,10 +29,8 @@ def coletar_dados():
             chrome_options = Options()
             chrome_options.add_argument("--headless")
             driver = webdriver.Chrome(service=servico, options=chrome_options)
-            # Definir um tempo limite para esperar até que o elemento seja encontrado
-            driver.implicitly_wait(10)  # Aguarda até 10 segundos por elementos
+            driver.implicitly_wait(10)
 
-            # Fazer a requisição GET para a página
             driver.get(url)
 
             while True:
@@ -53,28 +43,25 @@ def coletar_dados():
                         'conteudo': f"{current_time}: {roulette_number}"
                     }
 
-                    # Adicione o resultado à lista de resultados
                     resultados.append(resultado)
 
-                    # Adicione um log
-                    print(f"Novo resultado coletado: {resultado}")
+                    # Emite o novo resultado via SocketIO
+                    socketio.emit('novo_resultado', resultado)
 
-                    time.sleep(50)  # Aguarda 50 segundos antes de buscar o próximo resultado
+                    time.sleep(50)
 
                 except NoSuchElementException:
                     print("Elemento da roleta não encontrado")
                     break
 
-            # Fechar o driver do Selenium
             driver.quit()
 
         except Exception as e:
             print("Ocorreu um erro durante a execução:", str(e))
 
 if __name__ == "__main__":
-    # Crie uma thread para coletar dados
     thread_coleta = threading.Thread(target=coletar_dados)
     thread_coleta.start()
 
-    # Inicie o servidor Flask para permitir a comunicação
-    app.run(host='0.0.0.0', port=10000)
+    # Adicione as configurações para permitir WebSocket
+    socketio.run(app, host='0.0.0.0', port=10000)
