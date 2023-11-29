@@ -58,7 +58,7 @@ def coletar_dados():
 
         except Exception as e:
             print("Ocorreu um erro durante a execução:", str(e))
-infd
+
 if __name__ == "__main__":
     thread_coleta = threading.Thread(target=coletar_dados)
     thread_coleta.start()

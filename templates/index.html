@@ -38,18 +38,25 @@
     <div class="container mt-5">
         <h1 class="mb-4">Resultados da Roleta</h1>
         <div id="resultados-lista" class="row">
-            {% for resultado in resultados %}
-                <div class="col-md-4">
-                    <div class="card column">
-                        <div class="card-header">
-                            <h2>{{ resultado.data }}</h2>
+            <div class="col-md-12">
+                {% set current_date = None %}
+                {% for resultado in resultados %}
+                    {% if resultado.data != current_date %}
+                        {% if current_date is not none %}
+                            </ul>
                         </div>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">{{ resultado.conteudo }}</li>
-                        </ul>
-                    </div>
-                </div>
-            {% endfor %}
+                        {% endif %}
+                        <div class="card column">
+                            <div class="card-header">
+                                <h2>{{ resultado.data }}</h2>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                {% set current_date = resultado.data %}
+                    {% endif %}
+                        <li class="list-group-item">{{ resultado.conteudo }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
     </div>
 </body>
