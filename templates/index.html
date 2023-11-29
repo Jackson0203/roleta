@@ -38,16 +38,14 @@
     <div class="container mt-5">
         <h1 class="mb-4">Resultados da Roleta</h1>
         <div id="resultados-lista" class="row">
-            {% for data, resultados_do_dia in resultados_por_data.items() %}
+            {% for resultado in resultados %}
                 <div class="col-md-4">
                     <div class="card column">
                         <div class="card-header">
-                            <h2>{{ data }}</h2>
+                            <h2>{{ resultado.data }}</h2>
                         </div>
                         <ul class="list-group list-group-flush">
-                            {% for resultado in resultados_do_dia %}
-                                <li class="list-group-item">{{ resultado }}</li>
-                            {% endfor %}
+                            <li class="list-group-item">{{ resultado.conteudo }}</li>
                         </ul>
                     </div>
                 </div>
