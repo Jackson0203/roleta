@@ -35,7 +35,7 @@ def coletar_dados():
 
             while True:
                 try:
-                    roulette_element = driver.find_element(By.XPATH, "//*[@id='root']/div/div[1]/div[1]/div/div[2]/div/div[2]/div/div[1]/div[1]/div/span[1]")
+                    roulette_element = driver.find_element(By.XPATH, "//*[@id='root']/div/div[1]/div[1]/div/div[2]/div/div[1]/div/div[1]/div[1]/div/span[1]")
                     roulette_number = roulette_element.text.strip()
                     current_time = time.strftime("%H:%M:%S", time.localtime())
                     resultado = {

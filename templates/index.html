@@ -25,34 +25,24 @@
             const resultadosLista = document.getElementById('resultados-lista');
             const novoResultado = document.createElement('li');
             novoResultado.innerText = resultado['conteudo'];
-            resultadosLista.appendChild(novoResultado);
-
-            // Recarrega a página automaticamente após 5 segundos
-            setTimeout(() => {
-                location.reload();
-            }, 5000);
+            resultadosLista.insertBefore(novoResultado, resultadosLista.firstChild);
         });
     </script>
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="mb-4">Resultados da Roleta</h1>
-        <div id="resultados-lista" class="row">
-            <div class="col-md-12">
-                {% set current_date = None %}
-                <div class="card column">
-                    <div class="card-header">
-                        <h2>Data</h2>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        {% for resultado in resultados %}
-                            <li class="list-group-item">
-                                {{ resultado.data }} - {{ resultado.conteudo }}
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
+        <div class="card column">
+            <div class="card-header">
+                <h2>Data</h2>
             </div>
+            <ul id="resultados-lista" class="list-group list-group-flush">
+                {% for resultado in resultados %}
+                    <li class="list-group-item">
+                        {{ resultado.data }} - {{ resultado.conteudo }}
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 </body>
