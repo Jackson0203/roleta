@@ -40,22 +40,18 @@
         <div id="resultados-lista" class="row">
             <div class="col-md-12">
                 {% set current_date = None %}
-                {% for resultado in resultados %}
-                    {% if resultado.data != current_date %}
-                        {% if current_date is not none %}
-                            </ul>
-                        </div>
-                        {% endif %}
-                        <div class="card column">
-                            <div class="card-header">
-                                <h2>{{ resultado.data }}</h2>
-                            </div>
-                            <ul class="list-group list-group-flush">
-                                {% set current_date = resultado.data %}
-                    {% endif %}
-                        <li class="list-group-item">{{ resultado.conteudo }}</li>
-                    {% endfor %}
-                </ul>
+                <div class="card column">
+                    <div class="card-header">
+                        <h2>Data</h2>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% for resultado in resultados %}
+                            <li class="list-group-item">
+                                {{ resultado.data }} - {{ resultado.conteudo }}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
