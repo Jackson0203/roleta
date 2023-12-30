@@ -22,7 +22,7 @@ def index():
 def coletar_dados():
     while True:
         today = datetime.now().strftime("%Y-%m-%d")
-        url = "https://casino.betfair.com/pt-br/c/roleta"
+        url = "https://casino.betfair.com/pt-br/c/roleta-ao-vivo"
 
         try:
             servico = Service(ChromeDriverManager().install())
@@ -48,7 +48,7 @@ def coletar_dados():
                     # Emite o novo resultado via SocketIO
                     socketio.emit('novo_resultado', resultado)
 
-                    time.sleep(50)
+                    time.sleep(40)
 
                 except NoSuchElementException:
                     print("Elemento da roleta não encontrado")
